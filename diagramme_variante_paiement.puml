@@ -1,0 +1,127 @@
+@startuml
+title Abstract Factory — Agrégateur de Paiements Multi-Opérateurs (CEMAC)
+
+skinparam linetype ortho
+skinparam backgroundColor #FFFFFF
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+skinparam class {
+  BackgroundColor #F5A623
+  BorderColor #333333
+  FontColor #000000
+  HeaderBackgroundColor #E08E0B
+}
+
+skinparam interface {
+  BackgroundColor #FCE4B8
+  BorderColor #333333
+  FontColor #000000
+}
+
+class SimulateurPaiementClient {
+  +main(args : String[]) : void
+  -simuler(operateur : String, factory : OperateurPaiementFactory) : void
+}
+
+
+
+  interface OperateurPaiementFactory {
+    +creerVerifierSolde() : VerifierSolde
+    +creerInitierTransaction() : InitierTransaction
+    +creerGenererRecu() : GenererRecu
+  }
+
+  together {
+    interface VerifierSolde {
+      +consulterDisponibilite(compte : String, montant : double) : boolean
+    }
+    interface InitierTransaction {
+      +executerDebit(compte : String, montant : double) : String
+    }
+    interface GenererRecu {
+      +editerJustificatif(ref : String, montant : double) : void
+    }
+  }
+
+
+package "factories" {
+
+
+  class OrangeMoneyFactory {
+    +creerVerifierSolde() : VerifierSolde
+    +creerInitierTransaction() : InitierTransaction
+    +creerGenererRecu() : GenererRecu
+  }
+  class MtnMomoFactory {
+    +creerVerifierSolde() : VerifierSolde
+    +creerInitierTransaction() : InitierTransaction
+    +creerGenererRecu() : GenererRecu
+  }
+  class CarteBancaireFactory {
+    +creerVerifierSolde() : VerifierSolde
+    +creerInitierTransaction() : InitierTransaction
+    +creerGenererRecu() : GenererRecu
+  }
+}
+
+package "models" {
+
+
+  together {
+    class OrangeVerifierSolde
+    class MtnVerifierSolde
+    class CarteVerifierSolde
+  }
+  together {
+    class OrangeInitierTransaction
+    class MtnInitierTransaction
+    class CarteInitierTransaction
+  }
+  together {
+    class OrangeGenererRecu
+    class MtnGenererRecu
+    class CarteGenererRecu
+  }
+}
+
+' Relations du Client
+SimulateurPaiementClient ..> OperateurPaiementFactory : <<Use>>
+SimulateurPaiementClient ..> VerifierSolde
+SimulateurPaiementClient ..> InitierTransaction
+SimulateurPaiementClient ..> GenererRecu
+
+' Implémentation des Fabriques
+OperateurPaiementFactory <|.. OrangeMoneyFactory
+OperateurPaiementFactory <|.. MtnMomoFactory
+OperateurPaiementFactory <|.. CarteBancaireFactory
+
+' Implémentation des Produits
+VerifierSolde <|.. OrangeVerifierSolde
+VerifierSolde <|.. MtnVerifierSolde
+VerifierSolde <|.. CarteVerifierSolde
+
+InitierTransaction <|.. OrangeInitierTransaction
+InitierTransaction <|.. MtnInitierTransaction
+InitierTransaction <|.. CarteInitierTransaction
+
+GenererRecu <|.. OrangeGenererRecu
+GenererRecu <|.. MtnGenererRecu
+GenererRecu <|.. CarteGenererRecu
+
+' Instanciation par les Fabriques
+OrangeMoneyFactory ..> OrangeVerifierSolde : <<instantiate>>
+OrangeMoneyFactory ..> OrangeInitierTransaction
+OrangeMoneyFactory ..> OrangeGenererRecu
+
+MtnMomoFactory ..> MtnVerifierSolde
+MtnMomoFactory ..> MtnInitierTransaction
+MtnMomoFactory ..> MtnGenererRecu
+
+CarteBancaireFactory ..> CarteVerifierSolde : <<instantiate>>
+CarteBancaireFactory ..> CarteInitierTransaction
+CarteBancaireFactory ..> CarteGenererRecu
+
+@enduml
